@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-icon
+icon/*
 !icon/icon_.ico
 dist-electron
 *lock.json
