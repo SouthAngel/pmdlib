@@ -10,6 +10,7 @@ const fsexists = async (_path:string)=>{try{await fs.stat(_path);return true;}ca
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const dir_cache:any = {};
 
 // The built directory structure
 //
@@ -78,26 +79,30 @@ app.on('activate', () => {
 
 app.whenReady().then(()=>{
   ipcMain.handle("list_dir", async (e,_path)=>{
-    const rds = await fs.readdir(_path);
-    console.log([rds]);
-    const ret:string[][] = [];
-    for (let i = 0; i < rds.length; i++) {
-      const iname = rds[i];
-      const fullPath = path.join(_path, iname);
-      const _fstat = await fs.stat(fullPath);
-      const xdf = _fstat.isDirectory()?"d":(_fstat.isFile()?"f":"n");
-      const mtime = _fstat.mtime.getTime().toString();
-      const fsize = (_fstat.isFile()?_fstat.size:0).toString();
-      const hh = createHash("sha256");
-      hh.update(fullPath+xdf+mtime+fsize);
-      const hc = hh.digest("hex").toString()
-      ret.push([
-        fullPath,
-        xdf,
-        mtime,
-        fsize,
-        hc
-      ]);
+    let ret:string[][] = [];
+    if (Object.hasOwnProperty.call(dir_cache, _path)){
+      ret = dir_cache[_path];
+    }else{
+      const rds = await fs.readdir(_path);
+      console.log([rds]);
+      for (let i = 0; i < rds.length; i++) {
+        const iname = rds[i];
+        const fullPath = path.join(_path, iname);
+        const _fstat = await fs.stat(fullPath);
+        const xdf = _fstat.isDirectory()?"d":(_fstat.isFile()?"f":"n");
+        const mtime = _fstat.mtime.getTime().toString();
+        const fsize = (_fstat.isFile()?_fstat.size:0).toString();
+        const hh = createHash("sha256");
+        hh.update(fullPath+xdf+mtime+fsize);
+        const hc = hh.digest("hex").toString()
+        ret.push([
+          fullPath,
+          xdf,
+          mtime,
+          fsize,
+          hc
+        ]);
+      }
     }
     // path file_dir mtime size hash
     return ret;
@@ -138,7 +143,7 @@ app.whenReady().then(()=>{
     // command
     // D:\pu\ffmpeg-7.0.2-full_build\bin\ffmpeg.exe -i "%filein%" -vf scale=128:128 -r 12 -b 48k -frames 24 "%fileout%"
     doConvert = true;
-    const _p = chp.spawn(fmp, ["-i",_in_path,"-vf","scale=128:128","-r","12","-b","48k","-frames","24",_out_path]);
+    const _p = chp.spawn(fmp, ["-i",_in_path,"-map","0:v","-vf","scale=128:128","-r","12","-b","48k","-frames","24",_out_path]);
     const fh = await fs.open(logf,"w");
     let closeed = false;
     _p.stdout.on("data", data=>{
