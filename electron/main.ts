@@ -43,7 +43,7 @@ function createWindow() {
       webSecurity:false,
     },
   });
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
   win.setMenuBarVisibility(false);
 
   // Test active push message to Renderer-process.
@@ -171,6 +171,9 @@ app.whenReady().then(()=>{
     const icpath = path.join(__dirname,"drag.png");
     if (!_path){return;}
     e.sender.startDrag({file:_path,icon:icpath});
+  });
+  ipcMain.handle("get_version", (e)=>{
+    return app.getVersion();
   });
   createWindow();
 })

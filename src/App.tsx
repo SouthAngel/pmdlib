@@ -47,8 +47,10 @@ function App() {
   const [contextMenuAnchorEl, setContextMenuAnchorEl] = useState<null|HTMLElement>(null);
   const [thumbPaths, setThumbPaths] = useState<string[]>([]);
   const [rootPath, setRootPath] = useState(testRootPath);
+  const [version, setVersion] = useState("0.0.0");
   const [isOpenDrawer,toggleDrawer] = useState(false);
   useEffect(()=>{
+    ipcRenderer.invoke("get_version").then((v)=>setVersion(v));
     if (sourceData.appPath===""){
       const afn = async ()=>{
         sourceData.appPath = await ipcRenderer.invoke("get_temp_app_dir");
@@ -183,7 +185,7 @@ function App() {
         onClose={()=>setBBarMessage("")}
       ></Snackbar>
       <Drawer open={isOpenDrawer} onClose={()=>toggleDrawer(false)}>
-        <p style={{padding:29}}>Version 1.0.1.1</p>
+        <p style={{padding:29}}>Version {version}</p>
         <Divider>书签</Divider>
         <BookmarkContainer sx={{marginLeft:2}} changeRootCb={changeRootPathCb}></BookmarkContainer>
       </Drawer>
