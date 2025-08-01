@@ -4,12 +4,13 @@ import PrimaryAppBar from "./AppBar";
 import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import Fab from "@mui/material/Fab";
 import ViewItem from "./ViewItem";
-import { Container, CssBaseline, Menu, MenuItem, Snackbar } from "@mui/material";
+import { Container, CssBaseline, Divider, Drawer, Menu, MenuItem, Snackbar } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 import { Sort } from "@mui/icons-material";
 import { store } from "./store";
 import { ipcMain, ipcRenderer } from "electron";
+import BookmarkContainer from "./Bookmark";
 
 const darkTheme = createTheme({
   palette:{
@@ -46,6 +47,7 @@ function App() {
   const [contextMenuAnchorEl, setContextMenuAnchorEl] = useState<null|HTMLElement>(null);
   const [thumbPaths, setThumbPaths] = useState<string[]>([]);
   const [rootPath, setRootPath] = useState(testRootPath);
+  const [isOpenDrawer,toggleDrawer] = useState(false);
   useEffect(()=>{
     if (sourceData.appPath===""){
       const afn = async ()=>{
@@ -169,6 +171,7 @@ function App() {
       <CssBaseline></CssBaseline>
       <PrimaryAppBar 
         loadImgs={loadImgs}
+        setLSideOpen={toggleDrawer}
         rootPath={rootPath}
         changeRootPath={changeRootPathCb}
         setNeedLoadOnce={setNeedLoadOnce}
@@ -179,6 +182,11 @@ function App() {
         message={bBarMessage}
         onClose={()=>setBBarMessage("")}
       ></Snackbar>
+      <Drawer open={isOpenDrawer} onClose={()=>toggleDrawer(false)}>
+        <p style={{padding:29}}>Version 1.0.1.1</p>
+        <Divider>书签</Divider>
+        <BookmarkContainer sx={{marginLeft:2}} changeRootCb={changeRootPathCb}></BookmarkContainer>
+      </Drawer>
       {0&&<Fab  onClick={testBfn} sx={{m:1,mt:8,float:"left",position:"fixed"}}>TEST</Fab>}
       <div style={{margin:"124px",display:"flex",flexWrap:"wrap"}}>
       {

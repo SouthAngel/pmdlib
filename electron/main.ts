@@ -43,7 +43,7 @@ function createWindow() {
       webSecurity:false,
     },
   });
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
   win.setMenuBarVisibility(false);
 
   // Test active push message to Renderer-process.

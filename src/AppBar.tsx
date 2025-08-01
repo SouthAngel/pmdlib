@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -18,8 +17,10 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, Switch, Tooltip } from '@mui/material';
-import {actions} from './store';
-import { useSelector, useDispatch } from 'react-redux';
+import {actions, useAppDispatch, useAppSelector} from './store';
+import { Star } from '@mui/icons-material';
+import React from 'react';
+import { AddBookmarkDialog, bookmarkData } from './Bookmark';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -68,10 +69,9 @@ export default function PrimaryAppBar({
     setNeedLoadOnce, 
     changeRootPath
   }:any) {
-  const [infoDOpen, setInfoDOpen] = useState(false);
-  const dispath = useDispatch()
-  const loadChildren = useSelector((state:any)=>state.value)
-  const [headLong, setHeadLong] = useState(0);
+  const dispath = useAppDispatch()
+  const loadChildren = useAppSelector((state)=>state.value)
+  const [collectionDialogOpen, setCollectionDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     useState<null | HTMLElement>(null);
@@ -177,14 +177,11 @@ export default function PrimaryAppBar({
 
   return (
     <Box sx={{flexGrow: 1,paddingTop:1}}>
-      <Dialog
-        open={infoDOpen}
-        onClose={()=>setInfoDOpen(false)}
-      >
-        <DialogContent>
-          {"Version: 1.0.0.1"}
-        </DialogContent>
-      </Dialog>
+      <AddBookmarkDialog 
+        open={collectionDialogOpen} 
+        initPath={rootPath}
+        closeCb={()=>{setCollectionDialogOpen(false);}}
+        addCb={()=>{setCollectionDialogOpen(false);}}></AddBookmarkDialog>
       <AppBar ref={uref} sx={{position:"fixed",float:"left"}}>
         <Toolbar>
           <IconButton
@@ -193,7 +190,7 @@ export default function PrimaryAppBar({
             color="inherit"
             aria-label="open drawer"
             sx={{ mr: 2 }}
-            onClick={()=>setInfoDOpen(true)}
+            onClick={()=>setLSideOpen(true)}
           >
             <MenuIcon />
           </IconButton>
@@ -210,6 +207,11 @@ export default function PrimaryAppBar({
           onChange={handleRootPathChange}
           value={rootPath}
           ></TextField>
+          <Toolbar title="收藏">
+            <IconButton onClick={()=>{setCollectionDialogOpen(true);}}>
+              <Star sx={{color:rootPath in bookmarkData.pindex?"#ffff55":"#eeeeee"}}></Star>
+            </IconButton>
+          </Toolbar>
           <Tooltip title="加载子文件夹中的内容">
             <Switch checked={loadChildren} onChange={()=>{dispath(actions.switchLoadChildren());setNeedLoadOnce();}}></Switch>
           </Tooltip>
